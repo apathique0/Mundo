@@ -59,7 +59,7 @@ public class Store implements IStore {
     }
 
     @Override
-    public boolean purchaseSummonerNameChange(Currency currency, String name) {
+    public int purchaseSummonerNameChange(Currency currency, String name) {
         JSONObject object = new JSONObject();
         JSONObject item = new JSONObject();
         item.put("inventoryType", "SUMMONER_CUSTOMIZATION");
@@ -81,10 +81,10 @@ public class Store implements IStore {
                 .build();
         Call call = Main.httpClient.newCall(request);
         try (Response response = call.execute()) {
-            boolean status = response.code() == 200;
+            int status = response.code();
             try (ResponseBody body = response.body()) {
-                if (body == null) return false;
-                if (status) {
+                if (body == null) return status;
+                if (status == 200) {
                     if (currency == Currency.RP) {
                         player.withdrawRP(1300);
                     } else {
@@ -94,7 +94,7 @@ public class Store implements IStore {
                 return status;
             }
         } catch (IOException e) {
-            return false;
+            return 600;
         }
     }
 

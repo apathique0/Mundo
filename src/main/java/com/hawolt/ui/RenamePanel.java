@@ -27,8 +27,8 @@ public class RenamePanel extends JPanel {
         rename.addActionListener(listener -> {
             rename.setEnabled(false);
             Main.service.execute(() -> {
-                boolean status = store.purchaseSummonerNameChange(currencyJComboBox.getItemAt(currencyJComboBox.getSelectedIndex()), name.getText());
-                label.setText((status ? "Successfully changed" : "Failed to change") + " name");
+                int status = store.purchaseSummonerNameChange(currencyJComboBox.getItemAt(currencyJComboBox.getSelectedIndex()), name.getText());
+                label.setText((status == 200 ? "Successfully changed" : "Failed to change") + " name - " + status);
                 rename.setEnabled(true);
             });
         });
