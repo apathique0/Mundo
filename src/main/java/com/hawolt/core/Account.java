@@ -6,6 +6,8 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -60,29 +62,33 @@ public class Account extends HashMap<String, String> {
                 if (body == null) return;
                 String content = body.string();
                 JSONObject o = new JSONObject(content);
-                if (o.has("response")) {
-                    JSONObject nestOne = o.getJSONObject("response");
-                    if (nestOne.has("parameters")) {
-                        JSONObject nestTwo = nestOne.getJSONObject("parameters");
-                        if (nestTwo.has("uri")) {
-                            String values = nestTwo.getString("uri");
-                            String client = values.split("#")[1];
-                            String[] parameters = client.split("&");
-                            for (String parameter : parameters) {
-                                String[] pair = parameter.split("=");
-                                put(pair[0], pair[1]);
-                            }
-                            JSONObject id = new JSONObject(new String(Base64.getDecoder().decode(get("id_token").split("\\.")[1])));
-                            if (!id.has("lol_region")) throw new NoLeagueAccountAssociatedException();
-                            JSONArray lol = id.getJSONArray("lol_region");
-                            for (int i = 0; i < lol.length(); i++) {
-                                JSONObject account = lol.getJSONObject(i);
-                                if (!account.getBoolean("active")) continue;
-                                for (String key : account.keySet()) {
-                                    put(key, String.valueOf(account.get(key)));
+                if (!content.contains("http://localhost/redirect")) {
+                    JOptionPane.showMessageDialog(Frame.getFrames()[0], o.toString(5), "Error", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    if (o.has("response")) {
+                        JSONObject nestOne = o.getJSONObject("response");
+                        if (nestOne.has("parameters")) {
+                            JSONObject nestTwo = nestOne.getJSONObject("parameters");
+                            if (nestTwo.has("uri")) {
+                                String values = nestTwo.getString("uri");
+                                String client = values.split("#")[1];
+                                String[] parameters = client.split("&");
+                                for (String parameter : parameters) {
+                                    String[] pair = parameter.split("=");
+                                    put(pair[0], pair[1]);
                                 }
+                                JSONObject id = new JSONObject(new String(Base64.getDecoder().decode(get("id_token").split("\\.")[1])));
+                                if (!id.has("lol_region")) throw new NoLeagueAccountAssociatedException();
+                                JSONArray lol = id.getJSONArray("lol_region");
+                                for (int i = 0; i < lol.length(); i++) {
+                                    JSONObject account = lol.getJSONObject(i);
+                                    if (!account.getBoolean("active")) continue;
+                                    for (String key : account.keySet()) {
+                                        put(key, String.valueOf(account.get(key)));
+                                    }
+                                }
+                                put("sub", id.getString("sub"));
                             }
-                            put("sub", id.getString("sub"));
                         }
                     }
                 }

@@ -5,6 +5,8 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -47,11 +49,7 @@ public class Store implements IStore {
     }
 
     public List<Transaction> getRecommendedRefunds() {
-        return transactions.stream()
-                .filter(transaction -> transaction.getRefundabilityMessage() == null)
-                .filter(transaction -> transaction.getCurrencyType().equals("RP"))
-                .sorted((t1, t2) -> Long.compare(t2.getAmountSpent(), t1.getAmountSpent()))
-                .collect(Collectors.toList());
+        return transactions.stream().filter(transaction -> transaction.getRefundabilityMessage() == null).filter(transaction -> transaction.getCurrencyType().equals("RP")).sorted((t1, t2) -> Long.compare(t2.getAmountSpent(), t1.getAmountSpent())).collect(Collectors.toList());
     }
 
     public boolean redeemPrepaidCode(String code) {
@@ -74,11 +72,7 @@ public class Store implements IStore {
         object.put("items", array);
         MediaType type = MediaType.parse("application/json");
         RequestBody post = RequestBody.create(type, object.toString());
-        Request request = new Request.Builder()
-                .url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/summonerNameChange/purchase?language=en_US", platform.translateToWebRegion()))
-                .addHeader("Authorization", String.format("Bearer %s", account.get("access_token")))
-                .post(post)
-                .build();
+        Request request = new Request.Builder().url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/summonerNameChange/purchase?language=en_US", platform.translateToWebRegion())).addHeader("Authorization", String.format("Bearer %s", account.get("access_token"))).post(post).build();
         Call call = Main.httpClient.newCall(request);
         try (Response response = call.execute()) {
             int status = response.code();
@@ -90,6 +84,9 @@ public class Store implements IStore {
                     } else {
                         player.withdrawIP(13900);
                     }
+                } else {
+                    JSONObject o = new JSONObject(body.string());
+                    JOptionPane.showMessageDialog(Frame.getFrames()[0], o.toString(5), "Error", JOptionPane.INFORMATION_MESSAGE);
                 }
                 return status;
             }
@@ -99,27 +96,15 @@ public class Store implements IStore {
     }
 
     private void configure(IWalletUpdate wallet) throws IOException {
-        Request request = new Request.Builder()
-                .url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/history/purchase?language=en_US", platform.translateToWebRegion()))
-                .addHeader("Authorization", String.format("Bearer %s", account.get("access_token")))
-                .addHeader("Accept", "application/json")
-                .addHeader("Pragma", "no-cache")
-                .build();
+        Request request = new Request.Builder().url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/history/purchase?language=en_US", platform.translateToWebRegion())).addHeader("Authorization", String.format("Bearer %s", account.get("access_token"))).addHeader("Accept", "application/json").addHeader("Pragma", "no-cache").build();
         Call call = Main.httpClient.newCall(request);
         try (Response response = call.execute()) {
             try (ResponseBody body = response.body()) {
                 if (body == null) return;
-                System.out.println(body.string());
                 JSONObject object = new JSONObject(body.string());
                 this.player = new Player(wallet, object.getJSONObject("player"));
                 this.refundCreditsRemaining = object.getInt("refundCreditsRemaining");
-                this.transactions = object.getJSONArray("transactions")
-                        .toList()
-                        .stream()
-                        .map(o -> (HashMap<?, ?>) o)
-                        .map(JSONObject::new)
-                        .map(Transaction::new)
-                        .collect(Collectors.toList());
+                this.transactions = object.getJSONArray("transactions").toList().stream().map(o -> (HashMap<?, ?>) o).map(JSONObject::new).map(Transaction::new).collect(Collectors.toList());
             }
         }
     }
@@ -133,11 +118,7 @@ public class Store implements IStore {
         object.put("language", "en_GB");
         MediaType type = MediaType.parse("application/json");
         RequestBody post = RequestBody.create(type, object.toString());
-        Request request = new Request.Builder()
-                .url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/refund", platform.translateToWebRegion()))
-                .addHeader("Authorization", String.format("Bearer %s", account.get("access_token")))
-                .post(post)
-                .build();
+        Request request = new Request.Builder().url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/refund", platform.translateToWebRegion())).addHeader("Authorization", String.format("Bearer %s", account.get("access_token"))).post(post).build();
         Call call = Main.httpClient.newCall(request);
         try (Response response = call.execute()) {
             try (ResponseBody body = response.body()) {
@@ -149,6 +130,9 @@ public class Store implements IStore {
                     } else {
                         player.refundIP(transaction.getAmountSpent());
                     }
+                } else {
+                    JSONObject o = new JSONObject(body.string());
+                    JOptionPane.showMessageDialog(Frame.getFrames()[0], o.toString(5), "Error", JOptionPane.INFORMATION_MESSAGE);
                 }
                 return status;
             }

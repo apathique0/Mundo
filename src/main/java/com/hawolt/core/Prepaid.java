@@ -4,6 +4,8 @@ import com.hawolt.Main;
 import okhttp3.*;
 import org.json.JSONObject;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -63,7 +65,14 @@ public class Prepaid {
                     .build();
             Call call = Main.httpClient.newCall(request);
             try (Response response = call.execute()) {
-                if (response.code() != 200) return false;
+                if (response.code() != 200) {
+                    try (ResponseBody body = response.body()) {
+                        if (body == null) return false;
+                        JSONObject o = new JSONObject(body.string());
+                        JOptionPane.showMessageDialog(Frame.getFrames()[0], o.toString(5), "Error", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    return false;
+                }
                 try (ResponseBody body = response.body()) {
                     if (body == null) throw new IOException();
                     JSONObject o = new JSONObject(body.string());
