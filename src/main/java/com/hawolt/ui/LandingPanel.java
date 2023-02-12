@@ -45,7 +45,7 @@ public class LandingPanel extends JPanel {
                         prepaid.setStore(store);
                     }
                 } catch (IOException | NoLeagueAccountAssociatedException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    JOptionPane.showMessageDialog(Frame.getFrames()[0], e.getClass().getName() + System.lineSeparator() + e.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);
                 }
                 userCredentialsPanel.getLogin().setEnabled(true);
             });

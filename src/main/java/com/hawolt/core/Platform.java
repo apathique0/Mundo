@@ -7,7 +7,7 @@ package com.hawolt.core;
 
 public enum Platform {
     BR1(null),
-    EUN1(null),
+    EUN1("edge.rgl.pmc.pay.riotgames.com"),
     EUW1("edge.rgl.pmc.pay.riotgames.com"),
     JP1(null),
     KR(null),
@@ -33,9 +33,7 @@ public enum Platform {
     }
 
     public String translateToWebRegion() {
-        String webRegion = (this == EUN1 ? "EUNE" :
-                (this == LA1 || this == LA2 || this == OC1) ? name() :
-                        name().replaceAll("[0-9]", ""));
+        String webRegion = (this == LA1 || this == LA2 || this == OC1) ? name() : name().replaceAll("[0-9]", "");
         return webRegion.toLowerCase();
     }
 }

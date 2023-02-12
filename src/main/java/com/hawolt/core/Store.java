@@ -102,6 +102,7 @@ public class Store implements IStore {
             try (ResponseBody body = response.body()) {
                 if (body == null) return;
                 JSONObject object = new JSONObject(body.string());
+                if (object.toString().contains("request.rateLimit")) throw new IOException(object.toString(5));
                 this.player = new Player(wallet, object.getJSONObject("player"));
                 this.refundCreditsRemaining = object.getInt("refundCreditsRemaining");
                 this.transactions = object.getJSONArray("transactions").toList().stream().map(o -> (HashMap<?, ?>) o).map(JSONObject::new).map(Transaction::new).collect(Collectors.toList());
