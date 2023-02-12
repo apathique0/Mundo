@@ -21,11 +21,13 @@ public class LandingPanel extends JPanel {
         setLayout(new BorderLayout());
         UserCredentialsPanel userCredentialsPanel = new UserCredentialsPanel();
         TransactionPanel transactionPanel = new TransactionPanel();
+        TransferPanel transferPanel = new TransferPanel();
         JPanel nest = new JPanel(new GridLayout(0, 1, 0, 0));
         PrepaidPanel prepaid = new PrepaidPanel();
         RenamePanel renamePanel = new RenamePanel();
         nest.add(prepaid);
         nest.add(renamePanel);
+        nest.add(transferPanel);
         userCredentialsPanel.getLogin().addActionListener(listener -> {
             userCredentialsPanel.getLogin().setEnabled(false);
             Main.service.execute(() -> {
@@ -41,6 +43,7 @@ public class LandingPanel extends JPanel {
                         walletPanel.getBELabel().setText("BE: " + player.getIP());
                         walletPanel.getRPLabel().setText("RP: " + player.getRP());
                         transactionPanel.populate(store, store.getRecommendedRefunds());
+                        transferPanel.populate(store, store.getAvailableTransferRegions());
                         renamePanel.setStore(store);
                         prepaid.setStore(store);
                     }

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,6 +55,100 @@ public class Store implements IStore {
 
     public boolean redeemPrepaidCode(String code) {
         return prepaid.redeem(player, code);
+    }
+
+    public List<TransferItem> getAvailableTransferRegions() {
+        Request request = new Request.Builder().url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/view/misc?language=en_GB", platform.translateToWebRegion())).addHeader("Authorization", String.format("Bearer %s", account.get("access_token"))).build();
+        Call call = Main.httpClient.newCall(request);
+        try (Response response = call.execute()) {
+            int status = response.code();
+            try (ResponseBody body = response.body()) {
+                if (body == null) return null;
+                JSONObject object = new JSONObject(body.string());
+
+                // Find item in catalog with inventoryType "TRANSFER"
+                ArrayList<TransferItem> transferItems = new ArrayList<>();
+                JSONArray catalog = object.getJSONArray("catalog");
+                for (int i = 0; i < catalog.length(); i++) {
+                    JSONObject item = catalog.getJSONObject(i);
+                    if (item.getString("inventoryType").equals("TRANSFER")) {
+                        transferItems.add(new TransferItem(item));
+                    }
+                }
+
+                return transferItems;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int purchaseTransfer(TransferItem transferItem) {
+        boolean isEligible = false;
+
+        // Verify that the player is eligible for transfer
+        JSONObject object1 = new JSONObject();
+        object1.put("accountId", player.getAccountId());
+        object1.put("destinationPlatform", transferItem.getDestinationPlatform());
+
+        MediaType type = MediaType.parse("application/json");
+        RequestBody verifyPost = RequestBody.create(type, object1.toString());
+        Request verifyRequest = new Request.Builder()
+                .url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/transfer/verify/account", platform.translateToWebRegion()))
+                .addHeader("Authorization", String.format("Bearer %s", account.get("access_token")))
+                .post(verifyPost)
+                .build();
+        Call verifyCall = Main.httpClient.newCall(verifyRequest);
+        try (Response verifyResponse = verifyCall.execute()) {
+            int verifyStatus = verifyResponse.code();
+            try (ResponseBody verifyBody = verifyResponse.body()) {
+                if (verifyBody == null) return verifyStatus;
+                if (verifyStatus == 200) {
+                    JSONObject o = new JSONObject(verifyBody.string());
+                    if (!o.getBoolean("errorOccurred")) {
+                        isEligible = true;
+                    }
+                } else {
+                    return verifyStatus;
+                }
+            }
+        } catch (IOException e) {
+            return 600;
+        }
+
+        // Do the actual transfer
+        if (!isEligible) return 400;
+
+        JSONObject object2 = new JSONObject();
+        object2.put("accountId", player.getAccountId());
+        object2.put("destinationPlatform", transferItem.getDestinationPlatform());
+        object2.put("itemId", transferItem.getItemId());
+        object2.put("ipCost", transferItem.getIp());
+        object2.put("rpCost", 0);
+
+        RequestBody transferPost = RequestBody.create(type, object2.toString());
+        Request transferRequest = new Request.Builder()
+                .url(String.format("https://%s.store.leagueoflegends.com/storefront/v3/transfer", platform.translateToWebRegion()))
+                .addHeader("Authorization", String.format("Bearer %s", account.get("access_token")))
+                .post(transferPost)
+                .build();
+        Call transferCall = Main.httpClient.newCall(transferRequest);
+        try (Response transferResponse = transferCall.execute()) {
+            int transferStatus = transferResponse.code();
+            try (ResponseBody transferBody = transferResponse.body()) {
+                if (transferBody == null) return transferStatus;
+                if (transferStatus == 200) {
+                    JSONObject o = new JSONObject(transferBody.string());
+                    if (o.getBoolean("success")) {
+                        return 200;
+                    }
+                }
+                return transferStatus;
+            }
+        } catch (IOException e) {
+            return 600;
+        }
     }
 
     @Override

@@ -23,7 +23,7 @@ public class Main {
         JFrame frame = new JFrame("Mundo");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Container container = frame.getContentPane();
-        container.setPreferredSize(new Dimension(500, 400));
+        container.setPreferredSize(new Dimension(500, 500));
         container.setLayout(new BorderLayout());
         container.add(new LandingPanel(), BorderLayout.CENTER);
         frame.setResizable(false);
