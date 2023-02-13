@@ -1,9 +1,7 @@
 package com.hawolt.ui;
 
 import com.hawolt.Main;
-import com.hawolt.core.Currency;
 import com.hawolt.core.IStore;
-import com.hawolt.core.Transaction;
 import com.hawolt.core.TransferItem;
 
 import javax.swing.*;
