@@ -106,6 +106,15 @@ public class Store implements IStore {
                 if (verifyBody == null) return verifyStatus;
                 if (verifyStatus == 200) {
                     JSONObject o = new JSONObject(verifyBody.string());
+                    // A successful response looks like this:
+                    /*
+                     * {
+                     *     "userNameIsAvailable": true,
+                     *     "summonerNameIsAvailable": true,
+                     *     "errorOccurred": false,
+                     *     "userName": "ACCOUNT_USERNAME"
+                     * }
+                     */
                     if (!o.getBoolean("errorOccurred")) {
                         isEligible = true;
                     }
@@ -125,7 +134,7 @@ public class Store implements IStore {
         object2.put("destinationPlatform", transferItem.getDestinationPlatform());
         object2.put("itemId", transferItem.getItemId());
         object2.put("ipCost", transferItem.getIp());
-        object2.put("rpCost", 0);
+        object2.put("rpCost", 0); // in fiddler the rpCost was null, but I cannot use null in JSONObject put method
 
         RequestBody transferPost = RequestBody.create(type, object2.toString());
         Request transferRequest = new Request.Builder()
@@ -140,6 +149,12 @@ public class Store implements IStore {
                 if (transferBody == null) return transferStatus;
                 if (transferStatus == 200) {
                     JSONObject o = new JSONObject(transferBody.string());
+                    // Successful response looks like this:
+                    /*
+                     * {
+                     *     "success": true
+                     * }
+                     */
                     if (o.getBoolean("success")) {
                         return 200;
                     }
