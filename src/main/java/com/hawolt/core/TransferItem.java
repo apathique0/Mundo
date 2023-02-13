@@ -78,7 +78,7 @@ public class TransferItem {
     @Override
     public String toString() {
         String currency = String.format("%s %s", ip, "BE");
-        String item = String.format("Item: [%s] - %s", name, itemId);
+        String item = String.format("[%s:%s]", itemId, name);
         return String.join(" - ", currency, item);
     }
 

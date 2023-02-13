@@ -20,14 +20,16 @@ public class LandingPanel extends JPanel {
     public LandingPanel() {
         setLayout(new BorderLayout());
         UserCredentialsPanel userCredentialsPanel = new UserCredentialsPanel();
+        JPanel singletonNest = new JPanel(new GridLayout(0, 1, 0, 0));
         TransactionPanel transactionPanel = new TransactionPanel();
         TransferPanel transferPanel = new TransferPanel();
+        singletonNest.add(transactionPanel);
+        singletonNest.add(transferPanel);
         JPanel nest = new JPanel(new GridLayout(0, 1, 0, 0));
         PrepaidPanel prepaid = new PrepaidPanel();
         RenamePanel renamePanel = new RenamePanel();
         nest.add(prepaid);
         nest.add(renamePanel);
-        nest.add(transferPanel);
         userCredentialsPanel.getLogin().addActionListener(listener -> {
             userCredentialsPanel.getLogin().setEnabled(false);
             Main.service.execute(() -> {
@@ -54,7 +56,7 @@ public class LandingPanel extends JPanel {
             });
         });
         add(userCredentialsPanel, BorderLayout.NORTH);
-        add(transactionPanel, BorderLayout.CENTER);
+        add(singletonNest, BorderLayout.CENTER);
         add(nest, BorderLayout.SOUTH);
     }
 

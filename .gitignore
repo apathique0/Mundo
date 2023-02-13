@@ -4,3 +4,5 @@
 target/*
 # ignore test
 src/test/*
+# ignore resources
+src/main/resources/*
