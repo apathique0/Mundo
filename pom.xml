@@ -6,7 +6,7 @@
 
     <groupId>com.hawolt</groupId>
     <artifactId>Mundo</artifactId>
-    <version>1.101</version>
+    <version>1.2</version>
 
     <build>
         <plugins>
