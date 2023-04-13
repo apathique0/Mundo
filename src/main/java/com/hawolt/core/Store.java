@@ -50,7 +50,10 @@ public class Store implements IStore {
     }
 
     public List<Transaction> getRecommendedRefunds() {
-        return transactions.stream().filter(transaction -> transaction.getRefundabilityMessage() == null).filter(transaction -> transaction.getCurrencyType().equals("RP")).sorted((t1, t2) -> Long.compare(t2.getAmountSpent(), t1.getAmountSpent())).collect(Collectors.toList());
+        return transactions.stream()
+                .filter(transaction -> transaction.getRefundabilityMessage() == null)
+                .sorted((t1, t2) -> Long.compare(t2.getAmountSpent(), t1.getAmountSpent()))
+                .collect(Collectors.toList());
     }
 
     public boolean redeemPrepaidCode(String code) {
@@ -133,8 +136,8 @@ public class Store implements IStore {
         object2.put("accountId", player.getAccountId());
         object2.put("destinationPlatform", transferItem.getDestinationPlatform());
         object2.put("itemId", transferItem.getItemId());
-        object2.put("ipCost", transferItem.getIp());
-        object2.put("rpCost", 0); // in fiddler the rpCost was null, but I cannot use null in JSONObject put method
+        object2.put("ipCost", JSONObject.NULL);
+        object2.put("rpCost", transferItem.getRP()); // in fiddler the rpCost was null, but I cannot use null in JSONObject put method
 
         RequestBody transferPost = RequestBody.create(type, object2.toString());
         Request transferRequest = new Request.Builder()
