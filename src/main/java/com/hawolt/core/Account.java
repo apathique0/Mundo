@@ -50,7 +50,7 @@ public class Account extends HashMap<String, String> {
         Request request = new Request.Builder()
                 .url("https://auth.riotgames.com/api/v1/authorization")
                 .addHeader("Content-Type", "application/json")
-                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36")
+                .addHeader("User-Agent", "RiotClient/")
                 .addHeader("Pragma", "no-cache")
                 .addHeader("Accept", "*/*")
                 .addHeader("Cookie", cookie)
